@@ -1,0 +1,149 @@
+package com.microservices.employeeapp.service;
+
+import java.util.List;
+import java.util.stream.Collectors;
+
+import org.modelmapper.ModelMapper;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.web.client.RestTemplateBuilder;
+import org.springframework.cloud.client.ServiceInstance;
+import org.springframework.cloud.client.discovery.DiscoveryClient;
+import org.springframework.cloud.client.loadbalancer.LoadBalancerClient;
+import org.springframework.stereotype.Service;
+import org.springframework.web.client.RestTemplate;
+import org.springframework.web.reactive.function.client.WebClient;
+
+import com.microservices.employeeapp.entity.Employee;
+import com.microservices.employeeapp.feignclient.AddressClient;
+import com.microservices.employeeapp.repository.EmployeeRepository;
+import com.microservices.employeeapp.response.AddressResponse;
+import com.microservices.employeeapp.response.EmployeeResponse;
+
+import lombok.extern.log4j.Log4j2;
+import lombok.extern.slf4j.Slf4j;
+
+@Service
+@Slf4j
+public class EmployeeServiceImp implements EmployeeService {
+
+	private final EmployeeRepository employeeRepository;
+
+	Logger logger=LoggerFactory.getLogger(EmployeeServiceImp.class);
+	@Autowired
+	private final ModelMapper mapper;
+
+	@Autowired
+	private DiscoveryClient discoveryClient;
+	
+	@Autowired
+	private LoadBalancerClient loadBalancerClient;
+	/*
+	 * @Autowired private final RestTemplate restTemplate;
+	 * 
+	 * 
+	 * @Autowired private WebClient webClient;
+	 */
+	@Autowired
+	private RestTemplate restTemplate;
+	@Autowired
+	private AddressClient addressClient;
+
+	public EmployeeServiceImp(EmployeeRepository employeeRepository, ModelMapper mapper) {
+		super();
+
+		// private static Logger logger = LoggerFactory.getLogger(Main.class);
+		this.employeeRepository = employeeRepository;
+		this.mapper = mapper;
+		
+		logger.info("here we can assign bean to respective ");
+		// System.out.println("url" + addressBasedUrl);
+		// this.restTemplate = builder.rootUri(addressBasedUrl).build();
+	}
+
+	@Override
+	public EmployeeResponse getEmployeeById(Integer id) {
+		// TODO Auto-generated method stub
+
+		// Employee emp = employeeRepository.findById(id).get();
+
+		// return employeeToEmployeeRespone(emp);
+
+		// other way to map our entity object to response object is we can use model
+		// mapper
+
+		Employee emp1 = employeeRepository.findById(id).get();
+
+		EmployeeResponse employeeResponse = mapper.map(emp1, EmployeeResponse.class);
+
+		/*
+		 * Employee emp2=emp1;
+		 * 
+		 * mapper.typeMap(Employee.class, EmployeeResponse.class) .addMapping(mapper1
+		 * ->{mapper.map(emp2, null)});
+		 */
+
+		AddressResponse addressResponse = new AddressResponse();
+
+		/*
+		 * addressResponse=
+		 * restTemplate.getForObject(addressBasedUrl+"/address/{employeeId}",
+		 * AddressResponse.class, id);
+		 */
+
+		//List<ServiceInstance> instances=discoveryClient.getInstances("ADDRESS_APP");
+		//ServiceInstance serviceInstance=instances.get(0);
+		//String uri=serviceInstance.getUri().toString();
+		
+		
+		// ========================>>>>> REST TEMPLATE <<<<<==========================
+			//addressResponse=restTemplate.getForObject(uri+"/address/{id}", AddressResponse.class,id);
+		// addressResponse=webClient.get().uri("/address/"+id).retrieve().bodyToMono(AddressResponse.class).block();
+		//addressResponse = addressClient.getAddressByEmployeeId(id);
+		//addressResponse=callToAddressServiceByUsingRestTemplate(id);
+		
+		
+		addressResponse=addressClient.getAddressByEmployeeId(id);
+		employeeResponse.setAddressResponse(addressResponse);
+		return employeeResponse;
+
+	}
+
+	private AddressResponse callToAddressServiceByUsingRestTemplate(Integer id) {
+		// TODO Auto-generated method stub
+		/*
+		 * log.info("calling the eureka server  instancess "); List<ServiceInstance>
+		 * instances=discoveryClient.getInstances("ADDRESS_APP");
+		 * log.info("getting instances "); ServiceInstance
+		 * serviceInstance=instances.get(1); log.info("getting index"); String
+		 * uri=serviceInstance.getUri().toString(); log.info(uri);
+		 */
+		
+		log.info("Calling the eureka server instances by using loadbalaner");
+		ServiceInstance serviceInstance=loadBalancerClient.choose("ADDRESS_APP");
+		log.info("getting instances ");
+		String uri=serviceInstance.getUri().toString();
+		String context=serviceInstance.getMetadata().get("config");
+		log.info(uri);
+		log.info(uri+context);
+		return  restTemplate.getForObject(uri+"/address_app/api/address/{id}",AddressResponse.class,id);
+	}
+
+	private EmployeeResponse employeeToEmployeeRespone(Employee emp) {
+		return EmployeeResponse.builder().employeeId(emp.getEmployeeId()).employeeName(emp.getEmployeeName())
+				.employeeEmail(emp.getEmployeeEmail()).employeeBloodGroup(emp.getEmployeeBloodGroup()).build();
+
+	}
+
+	@Override
+	public EmployeeResponse getEmployeeAlongAddress() {
+		// TODO Auto-generated method stub
+		List<Employee> employee=employeeRepository.findAll();
+		List<EmployeeResponse>employeeResponses=employee.stream().map(employee1->mapper.map(employee1, EmployeeResponse.class)).collect(Collectors.toList());
+		
+		return null;
+	}
+
+}

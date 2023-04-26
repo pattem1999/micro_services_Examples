@@ -1,0 +1,5 @@
+package com.profile.main.config;
+
+public class DataSourceConfig {
+
+}

@@ -1,0 +1,15 @@
+package com.microservices.addressapp.service;
+
+import java.util.List;
+
+import com.microservices.addressapp.response.AddressResponse;
+
+public interface AddressService {
+
+	AddressResponse findAddressByEmployeeId(Integer id);
+
+	List<AddressResponse> getAllAddress();
+
+	AddressResponse registerAddress(AddressResponse addressResponse);
+
+}

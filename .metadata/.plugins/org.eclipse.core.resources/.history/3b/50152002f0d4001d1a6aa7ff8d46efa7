@@ -1,0 +1,9 @@
+package com.microservices.project.service;
+
+import com.microservices.project.model.Project;
+
+public interface ProjectService {
+
+	public Project saveProject(Project project);
+	public Project getProjectByCode(Long projectCode);
+}

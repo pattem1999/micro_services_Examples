@@ -1,0 +1,19 @@
+package com.microservicesemployee.employee;
+
+import org.springframework.boot.SpringApplication;
+import org.springframework.boot.autoconfigure.ImportAutoConfiguration;
+import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.cloud.commons.httpclient.HttpClientConfiguration;
+import org.springframework.cloud.openfeign.EnableFeignClients;
+import org.springframework.cloud.openfeign.FeignClientProperties.FeignClientConfiguration;
+
+@SpringBootApplication
+@EnableFeignClients
+@ImportAutoConfiguration({FeignClientConfiguration.class,HttpClientConfiguration.class})
+public class MicroservicesEmployeeApplication {
+
+	public static void main(String[] args) {
+		SpringApplication.run(MicroservicesEmployeeApplication.class, args);
+	}
+
+}

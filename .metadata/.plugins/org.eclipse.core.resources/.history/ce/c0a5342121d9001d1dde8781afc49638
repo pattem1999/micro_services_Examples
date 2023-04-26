@@ -1,0 +1,89 @@
+package com.microservices.employeeapp.service;
+
+import org.apache.logging.log4j.Logger;
+import org.modelmapper.ModelMapper;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.web.client.RestTemplateBuilder;
+import org.springframework.stereotype.Service;
+import org.springframework.web.client.RestTemplate;
+
+import com.microservices.employeeapp.entity.Employee;
+import com.microservices.employeeapp.repository.EmployeeRepository;
+import com.microservices.employeeapp.response.AddressResponse;
+import com.microservices.employeeapp.response.EmployeeResponse;
+
+import lombok.extern.log4j.Log4j2;
+
+@Service
+public class EmployeeServiceImp implements EmployeeService {
+
+	private final EmployeeRepository employeeRepository;
+	
+	@Autowired
+	private final ModelMapper mapper;
+	
+	@Autowired
+	private  RestTemplate restTemplate;
+	
+	@Value("${addresservice.base.url}")
+	private String addressBasedUrl;
+
+	public EmployeeServiceImp(EmployeeRepository employeeRepository,ModelMapper mapper,RestTemplateBuilder builder) {
+		super();
+		
+		//Logger.info(CrmConstantsUtil.LOG_MOM_RESPONSE, response);
+
+		this.employeeRepository = employeeRepository;
+		this.mapper=mapper;
+		System.out.println("url"+addressBasedUrl);
+		this.restTemplate=builder.build();
+	}
+	
+	
+	
+
+	
+
+
+
+	@Override
+	public EmployeeResponse getEmployeeById(Integer id) {
+		// TODO Auto-generated method stub
+
+		//Employee emp = employeeRepository.findById(id).get();
+		
+		//return employeeToEmployeeRespone(emp);
+		
+		//other way to map our entity object to response object is we can use model mapper
+		
+		
+		Employee emp1=employeeRepository.findById(id).get();
+		
+		EmployeeResponse employeeResponse= mapper.map(emp1, EmployeeResponse.class);
+		
+		/*
+		 * Employee emp2=emp1;
+		 * 
+		 * mapper.typeMap(Employee.class, EmployeeResponse.class) .addMapping(mapper1
+		 * ->{mapper.map(emp2, null)});
+		 */
+		
+		
+		AddressResponse addressResponse=new AddressResponse();
+		
+		addressResponse= restTemplate.getForObject(addressBasedUrl+"/address/{employeeId}",AddressResponse.class, id);
+		employeeResponse.setAddressResponse(addressResponse);
+		return  employeeResponse;
+		
+	}
+
+	private EmployeeResponse employeeToEmployeeRespone(Employee emp) {
+		return EmployeeResponse.builder().employeeId(emp.getEmployeeId()).employeeName(emp.getEmployeeName())
+				.employeeEmail(emp.getEmployeeEmail()).employeeBloodGroup(emp.getEmployeeBloodGroup()).build();
+
+	}
+	
+	
+
+}

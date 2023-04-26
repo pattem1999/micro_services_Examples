@@ -1,0 +1,5 @@
+server.port=8081
+
+server.servlet.context-path=/rabbit_mq/api
+
+spring.application.name=rabbit_mq

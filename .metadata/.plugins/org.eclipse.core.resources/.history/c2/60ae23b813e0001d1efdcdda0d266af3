@@ -1,0 +1,11 @@
+package com.profile.main.demo;
+
+public class Cat implements Animal {
+
+	@Override
+	public void makeSound() {
+		// TODO Auto-generated method stub
+
+	}
+
+}

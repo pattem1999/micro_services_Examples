@@ -1,0 +1,15 @@
+package com.microservices.employeeapp.feignclient;
+
+import org.springframework.cloud.openfeign.FeignClient;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+
+import com.microservices.employeeapp.response.AddressResponse;
+
+@FeignClient(name ="abc",url = "http://localhost:8083/address_app/api")
+public interface AddressClient {
+
+	
+	@GetMapping("/address/{id}")
+	AddressResponse getAddressByEmployeeId(@PathVariable("id") Integer id) ;
+}

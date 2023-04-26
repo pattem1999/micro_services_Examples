@@ -1,0 +1,18 @@
+package com.example.main.service;
+
+import java.util.List;
+
+import org.springframework.stereotype.Service;
+
+import com.example.main.model.User;
+
+@Service
+public class UserServiceImp implements UserService {
+
+	@Override
+	public List<User> findByUserName(String username) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+}

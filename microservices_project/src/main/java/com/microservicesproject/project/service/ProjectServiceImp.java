@@ -1,0 +1,36 @@
+package com.microservicesproject.project.service;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import com.microservicesproject.project.model.Project;
+import com.microservicesproject.project.repository.ProjectRepository;
+
+//import com.microservices.project.model.Project;
+//import com.microservices.project.repository.ProjectRepository;
+
+import lombok.RequiredArgsConstructor;
+
+@Service
+@RequiredArgsConstructor
+public class ProjectServiceImp implements ProjectService{
+
+	@Autowired
+	private final ProjectRepository projectRepository;
+	
+	@Override
+	public Project saveProject(Project project) {
+		// TODO Auto-generated method stub
+		Project savedProject=projectRepository.save(project);
+		
+		return savedProject;
+	}
+
+	@Override
+	public Project getProjectByCode(Long projectCode) {
+		// TODO Auto-generated method stub
+		Project foundProject=projectRepository.findByProjectCode(projectCode);
+		return foundProject;
+	}
+
+}
+

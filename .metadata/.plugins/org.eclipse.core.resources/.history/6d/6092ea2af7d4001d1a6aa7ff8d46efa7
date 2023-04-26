@@ -1,0 +1,12 @@
+package com.microservices.employee.service;
+
+import com.microservices.employee.model.Employee;
+import com.microservices.employee.payload.EmployeeDto;
+
+public interface EmployeeService {
+
+	public EmployeeDto saveEmployee(Employee employee);
+	public EmployeeDto getEmployeeById(Long id);
+	
+}
+
